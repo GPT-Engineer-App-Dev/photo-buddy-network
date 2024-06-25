@@ -1,10 +1,34 @@
-import { Container, VStack, Heading, Button, Input, Image, Box, SimpleGrid } from "@chakra-ui/react";
-import { useState } from "react";
+import { Container, VStack, Heading, Button, Input, Image, Box, SimpleGrid, useToast } from "@chakra-ui/react";
+import { useState, useCallback } from "react";
 import { FaUpload } from "react-icons/fa";
 
+import { useDropzone } from "react-dropzone";
+
 const Index = () => {
+  const toast = useToast();
   const [photos, setPhotos] = useState([]);
   const [photoURL, setPhotoURL] = useState("");
+
+  const onDrop = useCallback((acceptedFiles) => {
+    acceptedFiles.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setPhotos((prevPhotos) => [...prevPhotos, reader.result]);
+      };
+      reader.onerror = () => {
+        toast({
+          title: "Error uploading file",
+          description: "There was an error uploading the file. Please try again.",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+      };
+      reader.readAsDataURL(file);
+    });
+  }, [toast]);
+
+  const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
   const handleUpload = () => {
     if (photoURL) {
@@ -27,6 +51,19 @@ const Index = () => {
           <Button leftIcon={<FaUpload />} colorScheme="teal" onClick={handleUpload}>
             Upload
           </Button>
+        </Box>
+        <Box
+          {...getRootProps()}
+          border="2px dashed"
+          borderColor="gray.300"
+          borderRadius="md"
+          p={4}
+          mt={4}
+          width="100%"
+          textAlign="center"
+        >
+          <input {...getInputProps()} />
+          <p>Drag 'n' drop some files here, or click to select files</p>
         </Box>
         <SimpleGrid columns={[1, 2, 3]} spacing={4} width="100%" mt={6}>
           {photos.map((url, index) => (
