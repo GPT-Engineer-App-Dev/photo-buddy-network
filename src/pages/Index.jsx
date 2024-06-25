@@ -1,7 +1,6 @@
-import { Container, VStack, Heading, Button, Input, Image, Box, SimpleGrid, useToast } from "@chakra-ui/react";
+import { Container, VStack, Heading, Button, Input, Image, Box, SimpleGrid, useToast, IconButton, Text } from "@chakra-ui/react";
 import { useState, useCallback } from "react";
-import { FaUpload } from "react-icons/fa";
-
+import { FaUpload, FaHeart } from "react-icons/fa";
 import { useDropzone } from "react-dropzone";
 
 const Index = () => {
@@ -13,7 +12,7 @@ const Index = () => {
     acceptedFiles.forEach((file) => {
       const reader = new FileReader();
       reader.onload = () => {
-        setPhotos((prevPhotos) => [...prevPhotos, reader.result]);
+        setPhotos((prevPhotos) => [...prevPhotos, { url: reader.result, likes: 0 }]);
       };
       reader.onerror = () => {
         toast({
@@ -32,9 +31,17 @@ const Index = () => {
 
   const handleUpload = () => {
     if (photoURL) {
-      setPhotos([...photos, photoURL]);
+      setPhotos([...photos, { url: photoURL, likes: 0 }]);
       setPhotoURL("");
     }
+  };
+
+  const handleLike = (index) => {
+    setPhotos((prevPhotos) => {
+      const newPhotos = [...prevPhotos];
+      newPhotos[index].likes += 1;
+      return newPhotos;
+    });
   };
 
   return (
@@ -66,9 +73,18 @@ const Index = () => {
           <p>Drag 'n' drop some files here, or click to select files</p>
         </Box>
         <SimpleGrid columns={[1, 2, 3]} spacing={4} width="100%" mt={6}>
-          {photos.map((url, index) => (
-            <Box key={index} borderWidth="1px" borderRadius="lg" overflow="hidden">
-              <Image src={url} alt={`Photo ${index + 1}`} />
+          {photos.map((photo, index) => (
+            <Box key={index} borderWidth="1px" borderRadius="lg" overflow="hidden" position="relative">
+              <Image src={photo.url} alt={`Photo ${index + 1}`} />
+              <Box position="absolute" bottom="0" left="0" width="100%" bg="rgba(0, 0, 0, 0.5)" color="white" p={2} display="flex" justifyContent="space-between" alignItems="center">
+                <Text>{photo.likes} {photo.likes === 1 ? "like" : "likes"}</Text>
+                <IconButton
+                  icon={<FaHeart />}
+                  colorScheme="red"
+                  onClick={() => handleLike(index)}
+                  aria-label="Like photo"
+                />
+              </Box>
             </Box>
           ))}
         </SimpleGrid>
