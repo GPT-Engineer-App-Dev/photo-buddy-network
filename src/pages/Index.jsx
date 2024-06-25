@@ -1,17 +1,40 @@
-// Update this page (the content is just a fallback if you fail and example)
-// Use chakra-ui
-import { Container, Text, VStack } from "@chakra-ui/react";
-
-// Example of using react-icons
-// import { FaRocket } from "react-icons/fa";
-// <IconButton aria-label="Add" icon={<FaRocket />} size="lg" />; // IconButton would also have to be imported from chakra
+import { Container, VStack, Heading, Button, Input, Image, Box, SimpleGrid } from "@chakra-ui/react";
+import { useState } from "react";
+import { FaUpload } from "react-icons/fa";
 
 const Index = () => {
+  const [photos, setPhotos] = useState([]);
+  const [photoURL, setPhotoURL] = useState("");
+
+  const handleUpload = () => {
+    if (photoURL) {
+      setPhotos([...photos, photoURL]);
+      setPhotoURL("");
+    }
+  };
+
   return (
-    <Container centerContent maxW="container.md" height="100vh" display="flex" flexDirection="column" justifyContent="center" alignItems="center">
-      <VStack spacing={4}>
-        <Text fontSize="2xl">Your Blank Canvas</Text>
-        <Text>Chat with the agent to start making edits.</Text>
+    <Container centerContent maxW="container.md" py={10}>
+      <VStack spacing={4} width="100%">
+        <Heading as="h1" size="xl">Photo Sharing Platform</Heading>
+        <Box width="100%" display="flex" alignItems="center">
+          <Input
+            placeholder="Enter photo URL"
+            value={photoURL}
+            onChange={(e) => setPhotoURL(e.target.value)}
+            mr={2}
+          />
+          <Button leftIcon={<FaUpload />} colorScheme="teal" onClick={handleUpload}>
+            Upload
+          </Button>
+        </Box>
+        <SimpleGrid columns={[1, 2, 3]} spacing={4} width="100%" mt={6}>
+          {photos.map((url, index) => (
+            <Box key={index} borderWidth="1px" borderRadius="lg" overflow="hidden">
+              <Image src={url} alt={`Photo ${index + 1}`} />
+            </Box>
+          ))}
+        </SimpleGrid>
       </VStack>
     </Container>
   );
